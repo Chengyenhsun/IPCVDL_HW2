@@ -70,5 +70,6 @@ plt.title("Histogram of Equalized (Manual)")
 plt.xlabel("Gray Scale")
 plt.ylabel("Frequency")
 
+plt.tight_layout()
 # 顯示圖片和直方圖
 plt.show()
