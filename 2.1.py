@@ -32,12 +32,17 @@ plt.figure(figsize=(16, 8))
 
 # 顯示原始圖像和均衡後圖像
 plt.subplot(2, 3, 1), plt.imshow(image, cmap="gray"), plt.title("Original Image")
+plt.axis("off")  # Remove x and y-axis labels
+
 plt.subplot(2, 3, 2), plt.imshow(equalized_image, cmap="gray"), plt.title(
     "Equalized with OpenCV"
 )
+plt.axis("off")  # Remove x and y-axis labels
+
 plt.subplot(2, 3, 3), plt.imshow(equalized_image_manual, cmap="gray"), plt.title(
     "Equalized Manually"
 )
+plt.axis("off")  # Remove x and y-axis labels
 
 # 顯示原始圖像的直方圖
 plt.subplot(2, 3, 4)
