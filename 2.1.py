@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
 
 # 載入灰度圖像
 image_path = "histoEqualGray2.png"
@@ -30,29 +31,32 @@ hist_equalized_manual, _ = np.histogram(equalized_image_manual.flatten(), 256, [
 # 繪製圖像和直方圖
 plt.figure(figsize=(16, 8))
 
+# 使用gridspec調整子圖的高度
+gs = gridspec.GridSpec(2, 3, height_ratios=[2, 1])
+
 # 顯示原始圖像和均衡後圖像
-plt.subplot(2, 3, 1), plt.imshow(image, cmap="gray"), plt.title("Original Image")
+plt.subplot(gs[0, 0]), plt.imshow(image, cmap="gray"), plt.title("Original Image")
 plt.axis("off")  # Remove x and y-axis labels
 
-plt.subplot(2, 3, 2), plt.imshow(equalized_image, cmap="gray"), plt.title(
+plt.subplot(gs[0, 1]), plt.imshow(equalized_image, cmap="gray"), plt.title(
     "Equalized with OpenCV"
 )
 plt.axis("off")  # Remove x and y-axis labels
 
-plt.subplot(2, 3, 3), plt.imshow(equalized_image_manual, cmap="gray"), plt.title(
+plt.subplot(gs[0, 2]), plt.imshow(equalized_image_manual, cmap="gray"), plt.title(
     "Equalized Manually"
 )
 plt.axis("off")  # Remove x and y-axis labels
 
 # 顯示原始圖像的直方圖
-plt.subplot(2, 3, 4)
+plt.subplot(gs[1, 0])
 plt.bar(range(256), hist_original, color="steelblue", width=1)
 plt.title("Histogram of Original")
 plt.xlabel("Gray Scale")
 plt.ylabel("Frequency")
 
 # 顯示均衡後圖像的直方圖(OpenCV)
-plt.subplot(2, 3, 5)
+plt.subplot(gs[1, 1])
 plt.bar(
     range(256),
     cv2.calcHist([equalized_image], [0], None, [256], [0, 256])[:, 0],
@@ -64,7 +68,7 @@ plt.xlabel("Gray Scale")
 plt.ylabel("Frequency")
 
 # 顯示均衡後圖像的直方圖(Manual)
-plt.subplot(2, 3, 6)
+plt.subplot(gs[1, 2])
 plt.bar(range(256), hist_equalized_manual, color="steelblue", width=1)
 plt.title("Histogram of Equalized (Manual)")
 plt.xlabel("Gray Scale")
