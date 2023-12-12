@@ -36,7 +36,7 @@ def main(argv):
         for i in circles[0, :]:
             center = (i[0], i[1])
             # circle center
-            cv2.circle(src, center, 1, (0, 100, 100), 2)
+            cv2.circle(src, center, 1, (255, 255, 255), 3)
             # circle outline
             radius = i[2]
             cv2.circle(src, center, radius, (0, 255, 0), 2)
