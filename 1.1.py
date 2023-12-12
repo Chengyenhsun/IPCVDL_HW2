@@ -17,7 +17,6 @@ def main(argv):
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
 
     gray = cv2.GaussianBlur(gray, (5, 5), 0)
-    cv2.imshow("gray", gray)
 
     rows = gray.shape[0]
     circles = cv2.HoughCircles(
@@ -33,15 +32,26 @@ def main(argv):
 
     if circles is not None:
         circles = np.uint16(np.around(circles))
+
+        # Create a blank image for edge detection
+        edges_only = src.copy()
+
+        # Create a copy of the original image for circle centers
+        circle_centers_only = np.zeros_like(src)
+
         for i in circles[0, :]:
             center = (i[0], i[1])
             # circle center
-            cv2.circle(src, center, 1, (255, 255, 255), 3)
-            # circle outline
-            radius = i[2]
-            cv2.circle(src, center, radius, (0, 255, 0), 2)
+            cv2.circle(circle_centers_only, center, 1, (255, 255, 255), 2)
 
-    cv2.imshow("detected circles", src)
+            # Draw circle edges on the edges_only image
+            radius = i[2]
+            cv2.circle(edges_only, center, radius, (0, 255, 0), 2)
+
+        cv2.imshow("Circle_center", circle_centers_only)
+        cv2.imshow("Img_process", edges_only)
+
+    cv2.imshow("Img_src", src)
     cv2.waitKey(0)
 
     return 0
