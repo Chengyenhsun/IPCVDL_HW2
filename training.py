@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 # Hyperparameter
-BATCH_SIZE = 1000
+BATCH_SIZE = 100
 # Loss function
 loss_func = nn.CrossEntropyLoss()
 # check GPU
@@ -18,8 +18,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
 # MNIST的输入图片只有一个channel，所以修改均值和标准差
-mean = [0.5]
-std = [0.5]
+mean = [0.1307]
+std = [0.3081]
 n_train_samples = 60000
 
 # 多进程需要加一个main函数，否则会报错
