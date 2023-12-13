@@ -9,11 +9,11 @@ import torchvision.models as models
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-# 超参数
-BATCH_SIZE = 100
-# 损失函数
+# Hyperparameter
+BATCH_SIZE = 1000
+# Loss function
 loss_func = nn.CrossEntropyLoss()
-# 可以在CPU或者GPU上运行
+# check GPU
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
@@ -149,5 +149,5 @@ plt.xlabel("Epoch")
 plt.subplots_adjust(hspace=0.5)
 
 # plt.savefig("learning_history.jpg")
-plt.show()
+# plt.show()
 plt.savefig("learning_history.jpg")
