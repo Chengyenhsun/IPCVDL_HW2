@@ -85,7 +85,7 @@ def train_epoch(model, loss_func, optimizer, dataloader):
 
 
 # Load the pre-trained VGG19 model with Batch Normalization
-vgg19_bn = models.vgg19_bn(pretrained=False)
+vgg19_bn = models.vgg19_bn(num_classes=10)
 
 # Modify the first layer to accept a single channel input
 vgg19_bn.features[0] = nn.Conv2d(1, 64, kernel_size=3, padding=1)
@@ -94,7 +94,7 @@ vgg19_bn.features[0] = nn.Conv2d(1, 64, kernel_size=3, padding=1)
 vgg19_bn.features = vgg19_bn.features[:-1]
 
 # Check the modified VGG19 model
-# print(vgg19_bn)
+print(vgg19_bn)
 
 nepochs = 30
 vgg19 = vgg19_bn.to(device)
