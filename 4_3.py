@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 from torchsummary import summary
-from torchvision.transforms import Compose, ToTensor, Normalize
+from torchvision.transforms import Compose, ToTensor, Normalize, Resize
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 mean = [0.1307]
@@ -24,6 +24,7 @@ vgg19_bn.features[0] = nn.Conv2d(1, 64, kernel_size=3, padding=1)
 vgg19_bn.features = vgg19_bn.features[:-1]
 
 # 載入你的訓練好的權重
+
 vgg19_bn.load_state_dict(torch.load("vgg19_final.pt", map_location=device))  # 請確保路徑正確
 vgg19 = vgg19_bn.to(device)
 
@@ -31,9 +32,10 @@ vgg19 = vgg19_bn.to(device)
 vgg19.eval()
 
 # 載入圖片並進行預處理
-transform = Compose([ToTensor(), Normalize(mean, std)])
+transform = Compose([Resize((32, 32)), ToTensor(), Normalize(mean, std)])
 
-image = Image.open("5.png")
+image = Image.open("1.png").convert("L")
+# image = cv2.imread("5.png", cv2.IMREAD_GRAYSCALE)
 image = transform(image).unsqueeze(0).to(device)  # 添加一個批次維度並移到GPU（如果可用）
 
 # 使用模型進行推論
@@ -42,6 +44,7 @@ with torch.no_grad():
 
 # 取得類別機率
 probabilities = torch.nn.functional.softmax(outputs, dim=1)[0]
+print(probabilities)
 
 # 取得預測的類別索引
 predicted_class = torch.argmax(probabilities).item()
@@ -61,12 +64,10 @@ class_names = [
 ]
 
 # 輸出結果
-# print(
-#     "Predicted class: {} ({})".format(class_names[predicted_class], predicted_class)
-# )
-# print("Class probabilities:")
-# for i, prob in enumerate(probabilities):
-#     print("{}: {:.2f}%".format(class_names[i], prob * 100))
+print("Predicted class: {} ({})".format(class_names[predicted_class], predicted_class))
+print("Class probabilities:")
+for i, prob in enumerate(probabilities):
+    print("{}: {:.2f}%".format(class_names[i], prob * 100))
 
 # ui.predict_label.setText("Predicted = " + class_names[predicted_class])
 
@@ -88,4 +89,5 @@ for i, prob in enumerate(probs):
 # 顯示長條圖
 plt.xticks(rotation=45)  # 使x軸標籤更易讀
 plt.tight_layout()
-plt.show()
+# plt.show()
+# plt.savefig("12.jpg")
