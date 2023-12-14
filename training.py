@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 # Hyperparameter
-BATCH_SIZE = 100
+BATCH_SIZE = 6000
 # Loss function
 loss_func = nn.CrossEntropyLoss()
 # check GPU
@@ -31,7 +31,8 @@ if __name__ == "__main__":
         download=True,
         transform=trans.Compose(
             [
-                trans.RandomRotation(10),  # Rotate randomly by 10 degrees
+                trans.Resize((32, 32)),
+                # trans.RandomRotation(10),  # Rotate randomly by 10 degrees
                 trans.ToTensor(),
                 trans.Normalize(mean, std),
             ]
@@ -46,7 +47,9 @@ if __name__ == "__main__":
         root="./MNIST/",
         train=False,
         download=True,
-        transform=trans.Compose([trans.ToTensor(), trans.Normalize(mean, std)]),
+        transform=trans.Compose(
+            [trans.Resize((32, 32)), trans.ToTensor(), trans.Normalize(mean, std)]
+        ),
     )
 
     val_dl = DataLoader(val_set, batch_size=BATCH_SIZE, num_workers=6)  # 如需多线程，可以自行更改
