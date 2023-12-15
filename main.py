@@ -285,54 +285,50 @@ def Q3_1():
     cv2.destroyAllWindows()
 
 
-def Q3_1():
-    # 讀取彩色圖片
-    image = cv2.imread(filePath)
-
-    # 步驟1：將RGB圖像轉換為灰度圖像
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    # 調整平滑程度的核大小
-    def apply_gaussian_blur(image, kernel_size):
-        blurred = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
-        return blurred
-
-    # 步驟2：使用高斯平滑濾波器對灰度圖像進行平滑處理
-    kernel_size = 5
-    smoothed_image = apply_gaussian_blur(gray, kernel_size)
-
-    # 步驟3：使用Sobel x運算子進行邊緣檢測
-    sobel_x = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], dtype=np.float32)
-    sobel_x_image = cv2.filter2D(smoothed_image, -1, sobel_x)
-
-    # 步驟4：顯示結果
-    cv2.imshow("Sobel X", sobel_x_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-
 def Q3_2():
-    # 讀取彩色圖片
-    imageq32 = cv2.imread(filePath)
+    # Load the image
+    image_path = "opening.png"
+    img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
 
-    # 步驟1：將RGB圖像轉換為灰度圖像
-    grayq32 = cv2.cvtColor(imageq32, cv2.COLOR_BGR2GRAY)
+    # Step 2: Binarize the grayscale image
+    threshold = 127
+    binary_img = (img > threshold) * 255
 
-    # 調整平滑程度的核大小
-    def apply_gaussian_blur(image, kernel_size):
-        blurred = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
-        return blurred
+    # Step 3: Pad the image with zeros based on the kernel size (K=3)
+    pad_size = 1  # Padding size for a 3x3 kernel
+    padded_img = np.pad(binary_img, pad_size, mode="constant", constant_values=0)
 
-    # 步驟2：使用高斯平滑濾波器對灰度圖像進行平滑處理
-    kernel_size = 5
-    smoothed_image2 = apply_gaussian_blur(grayq32, kernel_size)
+    # Step 4: Perform erosion using a 3x3 all-ones structuring element
+    kernel_erode = np.ones((3, 3), np.uint8)
+    eroded_img = np.copy(padded_img)
+    for i in range(pad_size, padded_img.shape[0] - pad_size):
+        for j in range(pad_size, padded_img.shape[1] - pad_size):
+            if not np.all(
+                padded_img[
+                    i - pad_size : i + pad_size + 1, j - pad_size : j + pad_size + 1
+                ]
+                * kernel_erode
+            ):
+                eroded_img[i, j] = 0
 
-    # 步驟3：使用Sobel x運算子進行邊緣檢測
-    sobel_y = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]], dtype=np.float32)
-    sobel_y_image = cv2.filter2D(smoothed_image2, -1, sobel_y)
+    # Step 5: Perform dilation using a 3x3 all-ones structuring element
+    kernel_dilate = np.ones((3, 3), np.uint8)
+    dilated_img = np.zeros_like(eroded_img)
+    for i in range(pad_size, eroded_img.shape[0] - pad_size):
+        for j in range(pad_size, eroded_img.shape[1] - pad_size):
+            if np.any(
+                eroded_img[
+                    i - pad_size : i + pad_size + 1, j - pad_size : j + pad_size + 1
+                ]
+                * kernel_dilate
+            ):
+                dilated_img[i, j] = 255
 
-    # 步驟4：顯示結果
-    cv2.imshow("Sobel Y", sobel_y_image)
+    # Convert the image to uint8 before displaying
+    dilated_img_display = dilated_img.astype(np.uint8)
+
+    # Step 6: Show the image in a popup window
+    cv2.imshow("Opening Operation", dilated_img_display)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
