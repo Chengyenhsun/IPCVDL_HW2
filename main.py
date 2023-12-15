@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import sys
+from matplotlib import gridspec
 
 # from PyQt5 import QtCore, QtWidgets
 # from PyQt5.QtGui import QPixmap
@@ -168,33 +169,72 @@ def Q1_3():
 
 
 def Q2_1():
-    # 讀取彩色圖片
-    image = cv2.imread(filePath)
+    # 載入灰度圖像
+    image_path = "histoEqualGray2.png"
+    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
 
-    # 創建一個函數，用於更新圖像
-    def update_Q21(value):
-        # 設定初始的半徑大小
-        radius = 0
-        radius = value + 1
-        # 獲取trackbar的當前值
-        radius = cv2.getTrackbarPos("Radius", "Gaussian Blur")
+    # 進行OpenCV的直方圖均衡
+    equalized_image = cv2.equalizeHist(image)
+    # 計算原始圖像的直方圖
+    hist_original, bins = np.histogram(image.flatten(), 256, [0, 256])
+    # 計算PDF
+    pdf = hist_original / np.sum(hist_original)
+    # 計算CDF
+    cdf = np.cumsum(pdf)
+    # 創建均衡化的查找表
+    cdf_normalized = (cdf * 255).astype("uint8")
+    # 使用查找表進行均衡化
+    equalized_image_manual = cv2.LUT(image, cdf_normalized)
+    # 計算均衡後圖像的直方圖
+    hist_equalized_manual, _ = np.histogram(
+        equalized_image_manual.flatten(), 256, [0, 256]
+    )
 
-        # 計算kernel的大小
-        kernel_size = (2 * radius + 1, 2 * radius + 1)
+    # 繪製圖像和直方圖
+    plt.figure(figsize=(16, 8))
+    # 使用gridspec調整子圖的高度
+    gs = gridspec.GridSpec(2, 3, height_ratios=[2, 1])
+    # 顯示原始圖像和均衡後圖像
+    plt.subplot(gs[0, 0]), plt.imshow(image, cmap="gray"), plt.title("Original Image")
+    plt.axis("off")  # Remove x and y-axis labels
+    plt.subplot(gs[0, 1]), plt.imshow(equalized_image, cmap="gray"), plt.title(
+        "Equalized with OpenCV"
+    )
+    plt.axis("off")  # Remove x and y-axis labels
+    plt.subplot(gs[0, 2]), plt.imshow(equalized_image_manual, cmap="gray"), plt.title(
+        "Equalized Manually"
+    )
+    plt.axis("off")  # Remove x and y-axis labels
 
-        # 運用高斯濾波
-        blurred_image = cv2.GaussianBlur(image, kernel_size, 0)
+    # 顯示原始圖像的直方圖
+    plt.subplot(gs[1, 0])
+    plt.bar(range(256), hist_original, color="steelblue", width=1)
+    plt.title("Histogram of Original")
+    plt.xlabel("Gray Scale")
+    plt.ylabel("Frequency")
 
-        # 顯示結果
-        cv2.imshow("Gaussian Blur", blurred_image)
+    # 顯示均衡後圖像的直方圖(OpenCV)
+    plt.subplot(gs[1, 1])
+    plt.bar(
+        range(256),
+        cv2.calcHist([equalized_image], [0], None, [256], [0, 256])[:, 0],
+        color="steelblue",
+        width=1,
+    )
+    plt.title("Histogram of Equalized (OpenCV)")
+    plt.xlabel("Gray Scale")
+    plt.ylabel("Frequency")
 
-    cv2.namedWindow("Gaussian Blur")
-    cv2.createTrackbar("Radius", "Gaussian Blur", 0, 5, update_Q21)
-    cv2.imshow("Gaussian Blur", image)
+    # 顯示均衡後圖像的直方圖(Manual)
+    plt.subplot(gs[1, 2])
+    plt.bar(range(256), hist_equalized_manual, color="steelblue", width=1)
+    plt.title("Histogram of Equalized (Manual)")
+    plt.xlabel("Gray Scale")
+    plt.ylabel("Frequency")
 
-    # 等待用戶按下任意按鍵
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    plt.tight_layout()
+    # 顯示圖片和直方圖
+    plt.show()
 
 
 def Q2_2():
