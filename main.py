@@ -492,10 +492,11 @@ def Q5_2():
 
 
 def Q5_3():
-    image = cv2.imread("learning_history.jpg")
-    # 顯示結果圖像
-    cv2.imshow("Training/Validating Accuracy and Loss ", image)
-    cv2.waitKey(0)
+    image_path = "Accuracy_Comparison.jpg"
+    image = cv2.imread(image_path)
+
+    cv2.imshow("Accuracy_Comparison", image)
+    cv2.waitKey(0)  # 顯示圖片並等待任意按鍵關閉視窗
     cv2.destroyAllWindows()
 
 
