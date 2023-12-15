@@ -1,21 +1,21 @@
 import cv2
 import numpy as np
 import sys
+import os
+import matplotlib.pyplot as plt
 from matplotlib import gridspec
+from PIL import Image
+import torch
+import torch.nn as nn
+import torchvision.models as models
+from torchvision import datasets
+from torchsummary import summary
+from torchvision.transforms import transforms, Compose, ToTensor, Normalize, Resize
+from torch.utils.data import Dataset, DataLoader
 
 # from PyQt5 import QtCore, QtWidgets
 # from PyQt5.QtGui import QPixmap
 # from HW2UI_ui import Ui_MainWindow
-import os
-from PIL import Image
-import torchvision.transforms as transforms
-import matplotlib.pyplot as plt
-import torch
-import torchvision.models as models
-from torchsummary import summary
-from torchvision.transforms import Compose, ToTensor, Normalize, Resize
-import torch
-import torch.nn as nn
 
 
 def load_image():
@@ -424,48 +424,71 @@ def Q4_3():
 
 
 def Q5_1():
-    # images = [Image.open(image_file) for image_file in filePath2]
-    image_folder = "Dataset_OpenCvDl_Hw1/Q5_image/Q5_1"
-    # 載入圖像
-    image_files = [
-        os.path.join(image_folder, filename) for filename in os.listdir(image_folder)
-    ]
-    images = [Image.open(image_file) for image_file in image_files]
+    # 定義自定義資料集類別
+    class CustomDataset(Dataset):
+        def __init__(self, root_dir, transform=None):
+            self.data = datasets.ImageFolder(root=root_dir, transform=transform)
+            self.classes = self.data.classes
 
-    # 資料增強
-    transform = transforms.Compose(
-        [
-            transforms.RandomHorizontalFlip(),  # 隨機水平翻轉
-            transforms.RandomVerticalFlip(),  # 隨機垂直翻轉
-            transforms.RandomRotation(30),  # 隨機旋轉 (-30 到 30 度之間)
-        ]
+        def __len__(self):
+            return len(self.data)
+
+        def __getitem__(self, idx):
+            return self.data[idx]
+
+    # 設定資料集路徑
+    dataset_path = "dataset/inference_dataset"
+    inference_dataset = CustomDataset(
+        root_dir=dataset_path,
+        transform=transforms.Compose(
+            [
+                transforms.Resize((224, 224)),
+                transforms.ToTensor(),
+            ]
+        ),
     )
 
-    augmented_images = [transform(image) for image in images]
+    # 創建 DataLoader
+    inference_dataloader = DataLoader(inference_dataset, batch_size=1, shuffle=True)
 
-    # 提取檔名（不包含格式）作為標籤
-    labels = [os.path.splitext(os.path.basename(file))[0] for file in image_files]
+    # 取得一張每個類別的圖片
+    class_images = {}
+    for batch in inference_dataloader:
+        image, label = batch
+        class_name = inference_dataset.classes[label.item()]
 
-    # 顯示增強後的圖像和標籤在一個新視窗中
-    _, axes = plt.subplots(3, 3, figsize=(6, 6))
+        # 存儲每個類別的圖片
+        if class_name not in class_images:
+            class_images[class_name] = image
 
-    for i, (original, augmented, label) in enumerate(
-        zip(images, augmented_images, labels)
-    ):
-        ax = axes[i // 3, i % 3]
-        ax.set_title(label)
-        ax.imshow(original if i % 3 == 0 else augmented)
-        ax.axis("off")
+        # 當每個類別都取了一張圖片後，顯示並退出迴圈
+        if len(class_images) == len(inference_dataset.classes):
+            break
+
+    # 顯示兩張圖片
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+
+    for i, (class_name, image) in enumerate(class_images.items()):
+        axes[i].imshow(image.squeeze().permute(1, 2, 0).numpy())
+        axes[i].set_title(f"Class: {class_name}")
+        axes[i].axis("off")  # 關閉 x 和 y 軸
 
     plt.show()
 
 
 def Q5_2():
-    # 建立一個帶有批量歸一化的 VGG19 模型
-    vgg19_bn = models.vgg19_bn(num_classes=10)
+    # Build ResNet50 model
+    resnet50 = models.resnet50(weights=None)
+    num_ftrs = resnet50.fc.in_features
+    # print(num_ftrs)
+    # Replace the output layer with a FC layer of 1 node and Sigmoid activation
+    resnet50.fc = nn.Sequential(nn.Linear(num_ftrs, 1), nn.Sigmoid())
+    # Move the model to GPU if available
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    resnet50 = resnet50.to(device)
 
-    # 使用 torchsummary.summary 在終端中顯示模型結構
-    summary(vgg19_bn, (3, 224, 224))  # 輸入圖像維度 (3, 224, 224)
+    # Display the model structure using torchsummary
+    summary(resnet50, (3, 224, 224))  # Input image dimensions: (3, 224, 224)
 
 
 def Q5_3():
