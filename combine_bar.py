@@ -50,7 +50,14 @@ with torch.no_grad():
         accuracies.append(accuracy)
 
 # 顯示長條圖
-plt.bar(range(len(model_paths)), accuracies, tick_label=model_paths)
+fig, ax = plt.subplots()
+bars = ax.bar(range(len(model_paths)), accuracies, tick_label=model_paths)
+
+# Add numerical values on top of the bars
+for bar, accuracy in zip(bars, accuracies):
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, yval, f'{accuracy:.2f}%', ha='center', va='bottom', color='black', fontweight='bold')
+
 plt.xlabel('Models')
 plt.ylabel('Accuracy(%)')
 plt.title('Validation Accuracy for Different Models')
