@@ -342,6 +342,15 @@ def Q4_1():
     summary(vgg19_bn, (3, 32, 32))  # 輸入圖像維度 (3, 224, 224)
 
 
+def Q4_2():
+    image_path = "learning_history.jpg"
+    image = cv2.imread(image_path)
+
+    cv2.imshow("learning_history", image)
+    cv2.waitKey(0)  # 顯示圖片並等待任意按鍵關閉視窗
+    cv2.destroyAllWindows()
+
+
 def Q5_1():
     # images = [Image.open(image_file) for image_file in filePath2]
     image_folder = "Dataset_OpenCvDl_Hw1/Q5_image/Q5_1"
