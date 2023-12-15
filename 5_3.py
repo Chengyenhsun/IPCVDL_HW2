@@ -1,139 +1,67 @@
 import torch
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms, datasets
-import torch.nn as nn
-import time
-import torchvision.models as models
+from torchvision import transforms
+from torch.utils.data import DataLoader
+from torchvision import datasets
+import matplotlib.pyplot as plt
+from torchvision.models import resnet50
 from tqdm import tqdm
 
-# Hyperparameter
-BATCH_SIZE = 64  # Reducing batch size for demonstration purposes, adjust as needed
-# Loss function
-loss_func = (
-    nn.BCEWithLogitsLoss()
-)  # Binary Cross Entropy loss for binary classification
-# check GPU
+# 設定一些參數
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+batch_size = 32  # 請根據需要調整批次大小
 
+# 載入模型
+with_RE = 'resnet50/with_RE/2resnet50_checkpoint_epoch_20.pt'
+without_RE = 'resnet50/without_RE/resnet50_checkpoint_epoch_20.pt'
+model_paths = [without_RE, with_RE]
+models = []
 
-class CustomDataset(Dataset):
-    def __init__(self, root_dir, transform=None):
-        self.data = datasets.ImageFolder(root=root_dir, transform=transform)
-        self.classes = self.data.classes
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, idx):
-        return self.data[idx][0], torch.tensor(
-            self.data[idx][1]
-        )  # Remove the extra dimension
-
-
-def eval(model, loss_func, dataloader):
+for path in model_paths:
+    model = resnet50(pretrained=False, num_classes=2)  # 請確保 num_classes 是你的問題中需要的類別數量
+    model.load_state_dict(torch.load(path))
+    model.to(device)
     model.eval()
-    loss, correct, total = 0, 0, 0
+    models.append(model)
 
-    with torch.no_grad():
-        for batch_x, batch_y in dataloader:
-            batch_x, batch_y = batch_x.to(device), batch_y.to(device)
+# 載入驗證資料集
+transform = transforms.Compose([
+    transforms.Resize(224),
+    transforms.CenterCrop(224),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomVerticalFlip(),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
 
-            logits = model(batch_x)
-            error = loss_func(
-                logits.squeeze(), batch_y.float()
-            )  # Squeezing logits for BCEWithLogitsLoss
-            loss += error.item()
+validation_dataset = datasets.ImageFolder(root='dataset/validation_dataset', transform=transform)  # 請替換為你的實際路徑
 
-            predicted = torch.round(torch.sigmoid(logits))
-            correct += (predicted == batch_y).sum().item()
-            total += batch_y.size(0)
+# 計算準確度
+accuracies = []
+with torch.no_grad():
+    for model in models:
+        correct = 0
+        total = 0
+        dataloader = DataLoader(validation_dataset, batch_size=batch_size, shuffle=False)
+        for images, labels in tqdm(dataloader, desc="Validation"):
+            images, labels = images.to(device), labels.to(device)
+            outputs = model(images)
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+        accuracy = correct / total * 100  # Convert accuracy to percentage
+        accuracies.append(accuracy)
 
-    loss /= len(dataloader)
-    accuracy = correct / total * 100.0
-    return loss, accuracy
+# 顯示長條圖
+fig, ax = plt.subplots()
+bars = ax.bar(['Without Random-Erasing', 'With Random-Erasing'], accuracies)
 
+# Add numerical values on top of the bars
+for bar, accuracy in zip(bars, accuracies):
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, yval, f'{accuracy:.2f}%', ha='center', va='bottom', color='black', fontweight='bold')
 
-def train_epoch(model, loss_func, optimizer, dataloader):
-    model.train()
-    for batch_x, batch_y in tqdm(dataloader, desc="Training", ncols=100):
-        batch_x, batch_y = batch_x.to(device), batch_y.to(device)
-        optimizer.zero_grad()
-        logits = model(batch_x)
-        error = loss_func(
-            logits.squeeze(), batch_y.float()
-        )  # Squeezing logits for BCEWithLogitsLoss
-        error.backward()
-        optimizer.step()
-
-
-if __name__ == "__main__":
-    training_path = "dataset/training_dataset"
-    training_dataset = CustomDataset(
-        root_dir=training_path,
-        transform=transforms.Compose(
-            [
-                transforms.Resize(224),
-                transforms.CenterCrop(224),
-                transforms.RandomHorizontalFlip(),
-                transforms.RandomVerticalFlip(),
-                transforms.ToTensor(),
-                transforms.RandomErasing(),
-            ]
-        ),
-    )
-    train_dl = DataLoader(
-        training_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=0
-    )
-
-    validation_path = "dataset/validation_dataset"
-    validation_dataset = CustomDataset(
-        root_dir=validation_path,
-        transform=transforms.Compose(
-            [
-                transforms.Resize(224),
-                transforms.CenterCrop(224),
-                transforms.ToTensor(),
-            ]
-        ),
-    )
-    val_dl = DataLoader(validation_dataset, batch_size=BATCH_SIZE, num_workers=0)
-
-    RN_random = models.resnet50(pretrained=True)  # Using pretrained weights
-    num_ftrs = RN_random.fc.in_features
-    # Replace the output layer with a FC layer of 1 node (for binary classification)
-    RN_random.fc = nn.Sequential(nn.Linear(num_ftrs, 1))
-
-    nepochs = 5  # Increased the number of epochs for better training
-    RN_re = RN_random.to(device)
-
-    optimizer = torch.optim.SGD(
-        RN_re.parameters(), lr=0.01, momentum=0.9, nesterov=True
-    )
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(
-        optimizer, milestones=[40], gamma=0.1
-    )
-
-    train_loss_list = []
-    val_loss_list = []
-    train_acc_list = []
-    val_acc_list = []
-
-    for epoch in range(nepochs):
-        since = time.time()
-        train_epoch(RN_re, loss_func, optimizer, train_dl)
-
-        tr_loss, tr_acc = eval(RN_re, loss_func, train_dl)
-        val_loss, val_acc = eval(RN_re, loss_func, val_dl)
-
-        train_loss_list.append(tr_loss)
-        val_loss_list.append(val_loss)
-
-        train_acc_list.append(tr_acc)
-        val_acc_list.append(val_acc)
-        now = time.time()
-        print(
-            "[%2d/%d, %.0f seconds]|\t Train Loss: %.4f, Train Acc: %.2f%%\t |\t Val Loss: %.4f, Val Acc: %.2f%%"
-            % (epoch + 1, nepochs, now - since, tr_loss, tr_acc, val_loss, val_acc)
-        )
-
-    torch.save(RN_re.state_dict(), "RN_re_final.pt")
+plt.xlabel('Models')
+plt.ylabel('Accuracy(%)')
+plt.title('Accuracy Comparison')
+plt.savefig("Accuracy_Comparison.jpg")
+plt.show()
