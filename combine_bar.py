@@ -51,7 +51,7 @@ with torch.no_grad():
 
 # 顯示長條圖
 fig, ax = plt.subplots()
-bars = ax.bar(range(len(model_paths)), accuracies, tick_label=model_paths)
+bars = ax.bar(['With Random-Erasing', 'Without Random-Erasing'], accuracies)
 
 # Add numerical values on top of the bars
 for bar, accuracy in zip(bars, accuracies):
