@@ -237,60 +237,50 @@ def Q2_1():
     plt.show()
 
 
-def Q2_2():
-    # 讀取彩色圖片
-    image = cv2.imread(filePath)
+def Q3_1():
+    # Load the image
+    image_path = "closing.png"
+    img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
 
-    # 設定sigmaColor和sigmaSpace的值
-    sigmaColor = 90
-    sigmaSpace = 90
+    # Step 2: Binarize the grayscale image
+    threshold = 127
+    binary_img = (img > threshold) * 255
 
-    # 創建一個回呼函數，當軌跡條值改變時調用
-    def update_Q22(value):
-        # 初始化窗口半徑
-        radius = 0
-        radius = value + 1
-        # 使用Bilateral Filter處理圖片
-        filtered_image = cv2.bilateralFilter(
-            image, (2 * radius + 1), sigmaColor, sigmaSpace
-        )
-        # 顯示處理後的圖片
-        cv2.imshow("Bilateral Filter", filtered_image)
+    # Step 3: Pad the image with zeros based on the kernel size (K=3)
+    pad_size = 1  # Padding size for a 3x3 kernel
+    padded_img = np.pad(binary_img, pad_size, mode="constant", constant_values=0)
 
-    # 創建一個空視窗
-    cv2.namedWindow("Bilateral Filter")
-    # 創建一個軌跡條，用於調整半徑大小
-    cv2.createTrackbar("Radius", "Bilateral Filter", 0, 5, update_Q22)
-    cv2.imshow("Bilateral Filter", image)
+    # Step 4: Perform dilation using a 3x3 all-ones structuring element
+    kernel_dilate = np.ones((3, 3), np.uint8)
+    dilated_img = np.zeros_like(padded_img)
+    for i in range(pad_size, padded_img.shape[0] - pad_size):
+        for j in range(pad_size, padded_img.shape[1] - pad_size):
+            if np.any(
+                padded_img[
+                    i - pad_size : i + pad_size + 1, j - pad_size : j + pad_size + 1
+                ]
+                * kernel_dilate
+            ):
+                dilated_img[i, j] = 255
 
-    # 等待用戶按下任意按鍵
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    # Step 5: Perform erosion using a 3x3 all-ones structuring element
+    kernel_erode = np.ones((3, 3), np.uint8)
+    eroded_img = np.copy(dilated_img)
+    for i in range(pad_size, dilated_img.shape[0] - pad_size):
+        for j in range(pad_size, dilated_img.shape[1] - pad_size):
+            if not np.all(
+                dilated_img[
+                    i - pad_size : i + pad_size + 1, j - pad_size : j + pad_size + 1
+                ]
+                * kernel_erode
+            ):
+                eroded_img[i, j] = 0
 
+    # Convert the image to uint8 before displaying
+    eroded_img_display = eroded_img.astype(np.uint8)
 
-def Q2_3():
-    # 讀取彩色圖片
-    image = cv2.imread(filePath)
-
-    # 回呼函數，當軌跡條值改變時調用
-    def update_Q23(value):
-        # 初始化窗口半徑
-        radius = 0
-        radius = value + 1
-        # 計算kernel大小
-        kernel_size = 2 * radius + 1
-        # 使用Median Filter處理圖片
-        filtered_image = cv2.medianBlur(image, kernel_size)
-        # 顯示處理後的圖片
-        cv2.imshow("Median Filter", filtered_image)
-
-    # 創建一個空視窗
-    cv2.namedWindow("Median Filter")
-    # 創建軌跡條，用於調整半徑大小
-    cv2.createTrackbar("Radius", "Median Filter", 0, 5, update_Q23)
-    cv2.imshow("Median Filter", image)
-
-    # 等待用戶按下任意按鍵
+    # Step 6: Show the image in a popup window
+    cv2.imshow("Closing Operation", eroded_img_display)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
