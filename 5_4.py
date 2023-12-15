@@ -12,10 +12,10 @@ mean = [0.485, 0.456, 0.406]
 std = [0.229, 0.224, 0.225]
 
 # Create a ResNet50 model
-resnet50 = models.resnet50(pretrained=False)
+resnet50 = models.resnet50(pretrained=False, num_classes=2)
 # Load pre-trained weights
 resnet50.load_state_dict(
-    torch.load("resnet50_checkpoint_epoch_20.pt", map_location=device)
+    torch.load("resnet50/with_RE/2resnet50_checkpoint_epoch_20.pt", map_location=device)
 )  # Make sure the path is correct
 resnet50.to(device)
 resnet50.eval()
@@ -32,7 +32,7 @@ transform = transforms.Compose(
     ]
 )
 
-image = Image.open("your_image.jpg")  # Replace with the path to your image
+image = Image.open("2.jpg")  # Replace with the path to your image
 image = (
     transform(image).unsqueeze(0).to(device)
 )  # Add a batch dimension and move to GPU (if available)
@@ -49,7 +49,7 @@ predicted_class = torch.argmax(probabilities).item()
 
 # Load class names for ImageNet
 # You may need to replace or adapt this depending on the specific classes your model was trained on
-class_names = ["class_0", "class_1"]  # Replace with your actual class names
+class_names = ["cat", "dog"]  # Replace with your actual class names
 
 # Output results
 print("Predicted class: {} ({})".format(class_names[predicted_class], predicted_class))
