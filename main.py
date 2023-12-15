@@ -133,33 +133,38 @@ def Q1_2():
 
 
 def Q1_3():
-    # 讀取彩色圖片
-    image = cv2.imread(filePath)
+    def count_coins(image_path):
+        # Loads an image
+        src = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        # Check if the image is loaded fine
+        if src is None:
+            print("Error opening image!")
+            return -1
 
-    # 步驟1: 轉換圖像為HSV格式
-    hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
 
-    # 步驟2: 提取黃色和綠色的遮罩，生成I1
-    lower_yellow = np.array([12, 43, 43])  # HSV中黄色的下限值
-    upper_yellow = np.array([35, 255, 255])  # HSV中黄色的上限值
-    lower_green = np.array([35, 43, 46])  # HSV中绿色的下限值
-    upper_green = np.array([77, 255, 255])  # HSV中绿色的上限值
-    mask_yellow = cv2.inRange(hsv_img, lower_yellow, upper_yellow)
-    mask_green = cv2.inRange(hsv_img, lower_green, upper_green)
-    mask_i1 = mask_yellow + mask_green
+        gray = cv2.GaussianBlur(gray, (5, 5), 0)
 
-    # 步驟3: 將黃色和綠色的遮罩轉成BGR格式
-    mask_i1_bgr = cv2.cvtColor(mask_i1, cv2.COLOR_GRAY2BGR)
-    mask = cv2.bitwise_not(mask_i1_bgr)
+        rows = gray.shape[0]
+        circles = cv2.HoughCircles(
+            gray,
+            cv2.HOUGH_GRADIENT,
+            1,
+            rows / 16,
+            param1=100,
+            param2=30,
+            minRadius=10,
+            maxRadius=40,
+        )
+        circles = np.uint16(np.around(circles))
+        coin_count = len(circles[0])
+        print("Number of coins:", coin_count)
 
-    # 步驟4: 從圖像中移除黃色和綠色，生成I2
-    i2 = cv2.bitwise_and(mask, image)
+        return 0
 
-    # 顯示 I1 及 I2
-    cv2.imshow("I1", mask_i1)
-    cv2.imshow("I2", i2)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    if __name__ == "__main__":
+        image_path = "coins.jpg"
+        count_coins(image_path)
 
 
 def Q2_1():
