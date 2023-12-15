@@ -46,12 +46,13 @@ with torch.no_grad():
             _, predicted = torch.max(outputs, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-        accuracy = correct / total
+        accuracy = correct / total * 100  # Convert accuracy to percentage
         accuracies.append(accuracy)
 
 # 顯示長條圖
 plt.bar(range(len(model_paths)), accuracies, tick_label=model_paths)
 plt.xlabel('Models')
-plt.ylabel('Accuracy')
+plt.ylabel('Accuracy(%)')
 plt.title('Validation Accuracy for Different Models')
+plt.savefig("Accuracy_Comparison.jpg")
 plt.show()
