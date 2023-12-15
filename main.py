@@ -502,104 +502,103 @@ def Q5_3():
 
 def Q5_4():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    mean = [x / 255 for x in [125.3, 23.0, 113.9]]
-    std = [x / 255 for x in [63.0, 62.1, 66.7]]
+    # ResNet50-specific mean and std values
+    mean = [0.485, 0.456, 0.406]
+    std = [0.229, 0.224, 0.225]
+    # Create a ResNet50 model
+    resnet50 = models.resnet50(pretrained=False, num_classes=2)
+    # Load pre-trained weights
+    resnet50.load_state_dict(
+        torch.load(
+            "resnet50/with_RE/2resnet50_checkpoint_epoch_20.pt", map_location=device
+        )
+    )  # Make sure the path is correct
+    resnet50.to(device)
+    resnet50.eval()
+    # Load and preprocess the input image
+    transform = transforms.Compose(
+        [
+            transforms.Resize(224),
+            transforms.CenterCrop(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomVerticalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
 
-    # 創建一個一般的 VGG19 模型
-    vgg19 = models.vgg19_bn(num_classes=10)
+    image = Image.open("119.jpg")  # Replace with the path to your image
+    image = (
+        transform(image).unsqueeze(0).to(device)
+    )  # Add a batch dimension and move to GPU (if available)
 
-    # 載入你的訓練好的權重
-    vgg19.load_state_dict(torch.load("vgg19_final.pt", map_location=device))  # 請確保路徑正確
-    vgg19.to(device)
-
-    # 設置模型為評估模式
-    vgg19.eval()
-
-    # 載入圖片並進行預處理
-    transform = Compose([ToTensor(), Normalize(mean, std)])
-
-    image = Image.open(filePath)
-    image = transform(image).unsqueeze(0).to(device)  # 添加一個批次維度並移到GPU（如果可用）
-
-    # 使用模型進行推論
+    # Perform inference using the model
     with torch.no_grad():
-        outputs = vgg19(image)
+        outputs = resnet50(image)
 
-    # 取得類別機率
+    # Get class probabilities
     probabilities = torch.nn.functional.softmax(outputs, dim=1)[0]
 
-    # 取得預測的類別索引
+    # Get the predicted class index
     predicted_class = torch.argmax(probabilities).item()
 
-    # 載入CIFAR-10類別名稱對照表
-    class_names = [
-        "airplane",
-        "automobile",
-        "bird",
-        "cat",
-        "deer",
-        "dog",
-        "frog",
-        "horse",
-        "ship",
-        "truck",
-    ]
+    # Load class names for ImageNet
+    # You may need to replace or adapt this depending on the specific classes your model was trained on
+    class_names = ["cat", "dog"]  # Replace with your actual class names
 
-    # 輸出結果
-    # print(
-    #     "Predicted class: {} ({})".format(class_names[predicted_class], predicted_class)
-    # )
-    # print("Class probabilities:")
-    # for i, prob in enumerate(probabilities):
-    #     print("{}: {:.2f}%".format(class_names[i], prob * 100))
-
-    ui.predict_label.setText("Predicted = " + class_names[predicted_class])
+    # Output results
+    print(
+        "Predicted class: {} ({})".format(class_names[predicted_class], predicted_class)
+    )
+    print("Class probabilities:")
+    for i, prob in enumerate(probabilities):
+        print("{}: {:.2f}%".format(class_names[i], prob * 100))
 
     probs = [prob.item() for prob in probabilities]
 
-    # 創建一個長條圖
+    # Create a bar chart
     plt.figure(figsize=(6, 6))
     plt.bar(class_names, probs, alpha=0.7)
 
-    # 設置圖表標題和軸標籤
+    # Set chart title and axis labels
     plt.title("Probability of each class")
     plt.xlabel("Class Name")
     plt.ylabel("Probability")
 
-    # 顯示機率值在長條上
+    # Display probability values on top of the bars
     for i, prob in enumerate(probs):
         plt.text(i, prob, f"{prob:.2f}", ha="center", va="bottom")
 
-    # 顯示長條圖
-    plt.xticks(rotation=45)  # 使x軸標籤更易讀
+    # Show the bar chart
+    plt.xticks(rotation=45)  # Make x-axis labels more readable
     plt.tight_layout()
     plt.show()
 
 
-app = QtCore.QCoreApplication.instance()
-if app is None:
-    app = QtWidgets.QApplication(sys.argv)
-MainWindow = QtWidgets.QMainWindow()
-ui = Ui_MainWindow()
-ui.setupUi(MainWindow)
+# app = QtCore.QCoreApplication.instance()
+# if app is None:
+#     app = QtWidgets.QApplication(sys.argv)
+# MainWindow = QtWidgets.QMainWindow()
+# ui = Ui_MainWindow()
+# ui.setupUi(MainWindow)
 
-ui.LoadImage1_Button.clicked.connect(load_image)
-ui.Q1_1_Button.clicked.connect(Q1_1)
-ui.Q1_2_Button.clicked.connect(Q1_2)
-ui.Q1_3_Button.clicked.connect(Q1_3)
-ui.Q2_1_Button.clicked.connect(Q2_1)
-ui.Q2_2_Button.clicked.connect(Q2_2)
-ui.Q2_3_Button.clicked.connect(Q2_3)
-ui.Q3_1_Button.clicked.connect(Q3_1)
-ui.Q3_2_Button.clicked.connect(Q3_2)
-ui.Q3_3_Button.clicked.connect(Q3_3)
-# ui.Q3_4_Button.clicked.connect()
-ui.Q4_Button.clicked.connect(Q4)
-ui.Q5_Load_Button.clicked.connect(load_image5)
-ui.Q5_1_Button.clicked.connect(Q5_1)
-ui.Q5_2_Button.clicked.connect(Q5_2)
-ui.Q5_3_Button.clicked.connect(Q5_3)
-ui.Q5_4_Button.clicked.connect(Q5_4)
+# ui.LoadImage1_Button.clicked.connect(load_image)
+# ui.Q1_1_Button.clicked.connect(Q1_1)
+# ui.Q1_2_Button.clicked.connect(Q1_2)
+# ui.Q1_3_Button.clicked.connect(Q1_3)
+# ui.Q2_1_Button.clicked.connect(Q2_1)
+# ui.Q2_2_Button.clicked.connect(Q2_2)
+# ui.Q2_3_Button.clicked.connect(Q2_3)
+# ui.Q3_1_Button.clicked.connect(Q3_1)
+# ui.Q3_2_Button.clicked.connect(Q3_2)
+# ui.Q3_3_Button.clicked.connect(Q3_3)
+# # ui.Q3_4_Button.clicked.connect()
+# ui.Q4_Button.clicked.connect(Q4)
+# ui.Q5_Load_Button.clicked.connect(load_image5)
+# ui.Q5_1_Button.clicked.connect(Q5_1)
+# ui.Q5_2_Button.clicked.connect(Q5_2)
+# ui.Q5_3_Button.clicked.connect(Q5_3)
+# ui.Q5_4_Button.clicked.connect(Q5_4)
 
-MainWindow.show()
-app.exec_()
+# MainWindow.show()
+# app.exec_()
