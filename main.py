@@ -53,127 +53,88 @@ def load_image5():
 
 
 def Q1_1():
-    def main(argv):
-        default_file = "coins.jpg"
-        filename = argv[0] if len(argv) > 0 else default_file
-        # Loads an image
-        src = cv2.imread(cv2.samples.findFile(filename), cv2.IMREAD_COLOR)
-        # Check if image is loaded fine
-        if src is None:
-            print("Error opening image!")
-            print(
-                "Usage: hough_circle.py [image_name -- default " + default_file + "] \n"
-            )
-            return -1
-
-        gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
-
-        gray = cv2.GaussianBlur(gray, (5, 5), 0)
-
-        rows = gray.shape[0]
-        circles = cv2.HoughCircles(
-            gray,
-            cv2.HOUGH_GRADIENT,
-            1,
-            rows / 16,
-            param1=100,
-            param2=30,
-            minRadius=10,
-            maxRadius=40,
-        )
-
-        if circles is not None:
-            circles = np.uint16(np.around(circles))
-
-            # Create a blank image for edge detection
-            edges_only = src.copy()
-
-            # Create a copy of the original image for circle centers
-            circle_centers_only = np.zeros_like(src)
-
-            for i in circles[0, :]:
-                center = (i[0], i[1])
-                # circle center
-                cv2.circle(circle_centers_only, center, 1, (255, 255, 255), 2)
-
-                # Draw circle edges on the edges_only image
-                radius = i[2]
-                cv2.circle(edges_only, center, radius, (0, 255, 0), 2)
-
-            cv2.imshow("Circle_center", circle_centers_only)
-            cv2.imshow("Img_process", edges_only)
-
-        cv2.imshow("Img_src", src)
-        cv2.waitKey(0)
-
-        return 0
-
-    if __name__ == "__main__":
-        main(sys.argv[1:])
-
-
-def Q1_2():
-    # 讀取彩色圖片
     image = cv2.imread(filePath)
+    # default_file = "coins.jpg"
+    # filename = argv[0] if len(argv) > 0 else default_file
+    # # Loads an image
+    # src = cv2.imread(cv2.samples.findFile(filename), cv2.IMREAD_COLOR)
+    # # Check if image is loaded fine
+    # if src is None:
+    #     print("Error opening image!")
+    #     print(
+    #         "Usage: hough_circle.py [image_name -- default " + default_file + "] \n"
+    #     )
+    #     return -1
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (5, 5), 0)
 
-    # 將彩色圖片轉成灰階圖片
-    I1 = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    rows = gray.shape[0]
+    circles = cv2.HoughCircles(
+        gray,
+        cv2.HOUGH_GRADIENT,
+        1,
+        rows / 16,
+        param1=100,
+        param2=30,
+        minRadius=10,
+        maxRadius=40,
+    )
 
-    # 分離通道
-    b, g, r = cv2.split(image)
+    if circles is not None:
+        circles = np.uint16(np.around(circles))
 
-    # 計算I2 = (R + G + B) / 3
-    I2 = (r + g + b) / 3
+        # Create a blank image for edge detection
+        edges_only = image.copy()
 
-    # 將I2轉換為灰階圖片
-    I2 = I2.astype(np.uint8)
+        # Create a copy of the original image for circle centers
+        circle_centers_only = np.zeros_like(image)
 
-    # 顯示灰階圖片
-    cv2.imshow("I1", I1)
-    cv2.imshow("I2", I2)
+        for i in circles[0, :]:
+            center = (i[0], i[1])
+            # circle center
+            cv2.circle(circle_centers_only, center, 1, (255, 255, 255), 2)
+
+            # Draw circle edges on the edges_only image
+            radius = i[2]
+            cv2.circle(edges_only, center, radius, (0, 255, 0), 2)
+
+        cv2.imshow("Circle_center", circle_centers_only)
+        cv2.imshow("Img_process", edges_only)
+
+    cv2.imshow("Img_src", image)
     cv2.waitKey(0)
-    cv2.destroyAllWindows()
+
+    return 0
 
 
 def Q1_3():
-    def count_coins(image_path):
-        # Loads an image
-        src = cv2.imread(image_path, cv2.IMREAD_COLOR)
-        # Check if the image is loaded fine
-        if src is None:
-            print("Error opening image!")
-            return -1
+    image = cv2.imread(filePath)
 
-        gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        gray = cv2.GaussianBlur(gray, (5, 5), 0)
+    gray = cv2.GaussianBlur(gray, (5, 5), 0)
 
-        rows = gray.shape[0]
-        circles = cv2.HoughCircles(
-            gray,
-            cv2.HOUGH_GRADIENT,
-            1,
-            rows / 16,
-            param1=100,
-            param2=30,
-            minRadius=10,
-            maxRadius=40,
-        )
-        circles = np.uint16(np.around(circles))
-        coin_count = len(circles[0])
-        print("Number of coins:", coin_count)
+    rows = gray.shape[0]
+    circles = cv2.HoughCircles(
+        gray,
+        cv2.HOUGH_GRADIENT,
+        1,
+        rows / 16,
+        param1=100,
+        param2=30,
+        minRadius=10,
+        maxRadius=40,
+    )
+    circles = np.uint16(np.around(circles))
+    coin_count = len(circles[0])
+    print("Number of coins:", coin_count)
 
-        return 0
-
-    if __name__ == "__main__":
-        image_path = "coins.jpg"
-        count_coins(image_path)
+    return 0
 
 
 def Q2_1():
-    # 載入灰度圖像
-    image_path = "histoEqualGray2.png"
-    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    image = cv2.imread(filePath)
+    image = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
 
     # 進行OpenCV的直方圖均衡
     equalized_image = cv2.equalizeHist(image)
@@ -240,9 +201,8 @@ def Q2_1():
 
 
 def Q3_1():
-    # Load the image
-    image_path = "closing.png"
-    img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    image = cv2.imread(filePath)
+    img = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
 
     # Step 2: Binarize the grayscale image
     threshold = 127
@@ -288,9 +248,8 @@ def Q3_1():
 
 
 def Q3_2():
-    # Load the image
-    image_path = "opening.png"
-    img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    image = cv2.imread(filePath)
+    img = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
 
     # Step 2: Binarize the grayscale image
     threshold = 127
@@ -527,10 +486,8 @@ def Q5_4():
         ]
     )
 
-    image = Image.open("119.jpg")  # Replace with the path to your image
-    image = (
-        transform(image).unsqueeze(0).to(device)
-    )  # Add a batch dimension and move to GPU (if available)
+    image = Image.open(filePath)
+    image = transform(image).unsqueeze(0).to(device)
 
     # Perform inference using the model
     with torch.no_grad():
