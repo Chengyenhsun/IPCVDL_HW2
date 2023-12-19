@@ -12,10 +12,9 @@ from torchvision import datasets
 from torchsummary import summary
 from torchvision.transforms import transforms, Compose, ToTensor, Normalize, Resize
 from torch.utils.data import Dataset, DataLoader
-
-# from PyQt5 import QtCore, QtWidgets
-# from PyQt5.QtGui import QPixmap
-# from HW2UI_ui import Ui_MainWindow
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtGui import QPixmap
+from hw2_ui import Ui_MainWindow
 
 
 def load_image():
@@ -44,10 +43,10 @@ def load_image5():
         filePath = os.path.relpath(abs_path, current_dir)
         # print(filePath)
 
-        image = QPixmap(filePath).scaled(148, 148)
+        image = QPixmap(filePath).scaled(248, 263)
         scene = QtWidgets.QGraphicsScene()  # 加入圖片
         scene.addPixmap(image)  # 將圖片加入 scene
-        ui.InferenceImage_View.setScene(scene)
+        ui.Q5_graphicview.setScene(scene)
     except:
         pass
 
@@ -103,11 +102,10 @@ def Q1_1():
 
     cv2.imshow("Img_src", image)
     cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
-    return 0
 
-
-def Q1_3():
+def Q1_2():
     image = cv2.imread(filePath)
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -129,17 +127,17 @@ def Q1_3():
     coin_count = len(circles[0])
     print("Number of coins:", coin_count)
 
-    return 0
+    ui.Q1coins.setText("There are " + str(coin_count) + " coins in the image.")
 
 
 def Q2_1():
     image = cv2.imread(filePath)
-    image = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
+    img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # 進行OpenCV的直方圖均衡
-    equalized_image = cv2.equalizeHist(image)
+    equalized_image = cv2.equalizeHist(img)
     # 計算原始圖像的直方圖
-    hist_original, bins = np.histogram(image.flatten(), 256, [0, 256])
+    hist_original, bins = np.histogram(img.flatten(), 256, [0, 256])
     # 計算PDF
     pdf = hist_original / np.sum(hist_original)
     # 計算CDF
@@ -147,7 +145,7 @@ def Q2_1():
     # 創建均衡化的查找表
     cdf_normalized = (cdf * 255).astype("uint8")
     # 使用查找表進行均衡化
-    equalized_image_manual = cv2.LUT(image, cdf_normalized)
+    equalized_image_manual = cv2.LUT(img, cdf_normalized)
     # 計算均衡後圖像的直方圖
     hist_equalized_manual, _ = np.histogram(
         equalized_image_manual.flatten(), 256, [0, 256]
@@ -158,7 +156,7 @@ def Q2_1():
     # 使用gridspec調整子圖的高度
     gs = gridspec.GridSpec(2, 3, height_ratios=[2, 1])
     # 顯示原始圖像和均衡後圖像
-    plt.subplot(gs[0, 0]), plt.imshow(image, cmap="gray"), plt.title("Original Image")
+    plt.subplot(gs[0, 0]), plt.imshow(img, cmap="gray"), plt.title("Original Image")
     plt.axis("off")  # Remove x and y-axis labels
     plt.subplot(gs[0, 1]), plt.imshow(equalized_image, cmap="gray"), plt.title(
         "Equalized with OpenCV"
@@ -202,7 +200,7 @@ def Q2_1():
 
 def Q3_1():
     image = cv2.imread(filePath)
-    img = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
+    img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Step 2: Binarize the grayscale image
     threshold = 127
@@ -249,7 +247,7 @@ def Q3_1():
 
 def Q3_2():
     image = cv2.imread(filePath)
-    img = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
+    img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Step 2: Binarize the grayscale image
     threshold = 127
@@ -305,11 +303,14 @@ def Q4_1():
 
 def Q4_2():
     image_path = "learning_history.jpg"
-    image = cv2.imread(image_path)
-
-    cv2.imshow("learning_history", image)
-    cv2.waitKey(0)  # 顯示圖片並等待任意按鍵關閉視窗
-    cv2.destroyAllWindows()
+    # image = cv2.imread(image_path)
+    image = QPixmap(image_path).scaled(440, 260)
+    scene = QtWidgets.QGraphicsScene()  # 加入圖片
+    scene.addPixmap(image)  # 將圖片加入 scene
+    ui.Q4_graphicview.setScene(scene)
+    # cv2.imshow("learning_history", image)
+    # cv2.waitKey(0)  # 顯示圖片並等待任意按鍵關閉視窗
+    # cv2.destroyAllWindows()
 
 
 def Q4_3():
@@ -380,6 +381,14 @@ def Q4_3():
     plt.xticks(rotation=45)  # 使x軸標籤更易讀
     plt.tight_layout()
     plt.show()
+
+
+def Q4_4():
+    # 獲取QGraphicsScene
+    scene = ui.Q4_graphicview.scene()
+
+    # 清除場景中的所有項目
+    scene.clear()
 
 
 def Q5_1():
@@ -532,30 +541,28 @@ def Q5_4():
     plt.show()
 
 
-# app = QtCore.QCoreApplication.instance()
-# if app is None:
-#     app = QtWidgets.QApplication(sys.argv)
-# MainWindow = QtWidgets.QMainWindow()
-# ui = Ui_MainWindow()
-# ui.setupUi(MainWindow)
+app = QtCore.QCoreApplication.instance()
+if app is None:
+    app = QtWidgets.QApplication(sys.argv)
+MainWindow = QtWidgets.QMainWindow()
+ui = Ui_MainWindow()
+ui.setupUi(MainWindow)
 
-# ui.LoadImage1_Button.clicked.connect(load_image)
-# ui.Q1_1_Button.clicked.connect(Q1_1)
-# ui.Q1_2_Button.clicked.connect(Q1_2)
-# ui.Q1_3_Button.clicked.connect(Q1_3)
-# ui.Q2_1_Button.clicked.connect(Q2_1)
-# ui.Q2_2_Button.clicked.connect(Q2_2)
-# ui.Q2_3_Button.clicked.connect(Q2_3)
-# ui.Q3_1_Button.clicked.connect(Q3_1)
-# ui.Q3_2_Button.clicked.connect(Q3_2)
-# ui.Q3_3_Button.clicked.connect(Q3_3)
-# # ui.Q3_4_Button.clicked.connect()
-# ui.Q4_Button.clicked.connect(Q4)
-# ui.Q5_Load_Button.clicked.connect(load_image5)
-# ui.Q5_1_Button.clicked.connect(Q5_1)
-# ui.Q5_2_Button.clicked.connect(Q5_2)
-# ui.Q5_3_Button.clicked.connect(Q5_3)
-# ui.Q5_4_Button.clicked.connect(Q5_4)
+ui.pushBotton.clicked.connect(load_image)
+ui.Q1_1_button.clicked.connect(Q1_1)
+ui.Q1_2_button.clicked.connect(Q1_2)
+ui.Q2_button.clicked.connect(Q2_1)
+ui.Q3_1_button.clicked.connect(Q3_1)
+ui.Q3_2_button.clicked.connect(Q3_2)
+ui.Q4_1_button.clicked.connect(Q4_1)
+ui.Q4_2_button.clicked.connect(Q4_2)
+ui.Q4_3_button.clicked.connect(Q4_3)
+ui.Q4_4_button.clicked.connect(Q4_4)
+ui.Q5_load_button.clicked.connect(load_image5)
+ui.Q5_1_button.clicked.connect(Q5_1)
+ui.Q5_2_button.clicked.connect(Q5_2)
+ui.Q5_3_button.clicked.connect(Q5_3)
+ui.Q5_4_button.clicked.connect(Q5_4)
 
-# MainWindow.show()
-# app.exec_()
+MainWindow.show()
+app.exec_()
