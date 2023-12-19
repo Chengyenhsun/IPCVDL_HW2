@@ -13,7 +13,15 @@ from torchsummary import summary
 from torchvision.transforms import transforms, Compose, ToTensor, Normalize, Resize
 from torch.utils.data import Dataset, DataLoader
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QPainterPath, QPen
+from PyQt5.QtCore import Qt, QPointF
+from PyQt5.QtWidgets import (
+    QApplication,
+    QGraphicsView,
+    QGraphicsScene,
+    QGraphicsPathItem,
+    QWidget,
+)
 from hw2_ui import Ui_MainWindow
 
 
@@ -314,6 +322,52 @@ def Q4_2():
 
 
 def Q4_3():
+    # class Example(QWidget):
+    #     def __init__(self):
+    #         super(Example, self).__init__()
+
+    #         # 使用已經建立好的 Q4_graphicview
+    #         self.handwriting_view = ui.Q4_graphicview
+    #         self.scene = self.handwriting_view.scene()
+
+    #         # setMouseTracking 设置为 False，否则不按下鼠标时也会跟踪鼠标事件
+    #         self.setMouseTracking(False)
+
+    #         # 初始化手寫軌跡相關變數
+    #         self.pos_xy = []
+    #         self.path_item = QGraphicsPathItem()
+    #         self.pen = QPen(Qt.white, 2, Qt.SolidLine)
+    #         self.path_item.setPen(self.pen)
+    #         self.scene.addItem(self.path_item)
+
+    #     def mouseMoveEvent(self, event):
+    #         """
+    #         按住鼠标移动事件：將當前點添加到pos_xy列表中
+    #         更新GraphicsPathItem以顯示手寫軌跡
+    #         """
+    #         pos_tmp = self.handwriting_view.mapToScene(event.pos())
+    #         self.pos_xy.append(pos_tmp)
+
+    #         # 更新GraphicsPathItem
+    #         path = QPainterPath()
+    #         path.moveTo(self.pos_xy[0])
+    #         for pos in self.pos_xy[1:]:
+    #             path.lineTo(pos)
+
+    #         self.path_item.setPath(path)
+
+    #     def mouseReleaseEvent(self, event):
+    #         """
+    #         重写鼠标按住后松开的事件
+    #         在每次松开后清空pos_xy列表
+    #         """
+    #         self.pos_xy = []
+
+    # if __name__ == "__main__":
+    #     app = QApplication(sys.argv)
+    #     pyqt_learn = Example()
+    #     pyqt_learn.show()
+    #     app.exec_()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     mean = [0.1307]
     std = [0.3081]
@@ -539,6 +593,55 @@ def Q5_4():
     plt.xticks(rotation=45)  # Make x-axis labels more readable
     plt.tight_layout()
     plt.show()
+
+
+# class Example(QWidget):
+#     def __init__(self):
+#         super(Example, self).__init__()
+
+#         # 使用已經建立好的 Q4_graphicview
+#         self.handwriting_view = ui.Q4_graphicview
+#         self.scene = self.handwriting_view.scene()
+
+#         # setMouseTracking 设置为 False，否则不按下鼠标时也会跟踪鼠标事件
+#         self.setMouseTracking(False)
+
+#         # 初始化手寫軌跡相關變數
+#         self.pos_xy = []
+#         self.path_item = QGraphicsPathItem()
+#         self.pen = QPen(Qt.white, 2, Qt.SolidLine)
+#         self.path_item.setPen(self.pen)
+#         self.scene.addItem(self.path_item)
+
+#     def mouseMoveEvent(self, event):
+#         """
+#         按住鼠标移动事件：將當前點添加到pos_xy列表中
+#         更新GraphicsPathItem以顯示手寫軌跡
+#         """
+#         pos_tmp = self.handwriting_view.mapToScene(event.pos())
+#         self.pos_xy.append(pos_tmp)
+
+#         # 更新GraphicsPathItem
+#         path = QPainterPath()
+#         path.moveTo(self.pos_xy[0])
+#         for pos in self.pos_xy[1:]:
+#             path.lineTo(pos)
+
+#         self.path_item.setPath(path)
+
+#     def mouseReleaseEvent(self, event):
+#         """
+#         重写鼠标按住后松开的事件
+#         在每次松开后清空pos_xy列表
+#         """
+#         self.pos_xy = []
+
+
+# if __name__ == "__main__":
+#     app = QApplication(sys.argv)
+#     pyqt_learn = Example()
+#     pyqt_learn.show()
+#     app.exec_()
 
 
 app = QtCore.QCoreApplication.instance()
