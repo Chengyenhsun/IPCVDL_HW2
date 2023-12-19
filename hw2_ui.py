@@ -260,7 +260,9 @@ class Ui_MainWindow(object):
         self.pushBotton.setText(_translate("MainWindow", "Load Image"))
         self.Q3_1_button.setText(_translate("MainWindow", "3.1 Closing"))
         self.Q3_2_button.setText(_translate("MainWindow", "3.2 Opening"))
-        self.Q2_button.setText(_translate("MainWindow", "2. Histogram Equalization    "))
+        self.Q2_button.setText(
+            _translate("MainWindow", "2. Histogram Equalization    ")
+        )
         self.Q1_1_button.setText(_translate("MainWindow", "1.1 Draw Contour"))
         self.Q1_2_button.setText(_translate("MainWindow", "1.2 Count Coins"))
         self.Q4_1_button.setText(_translate("MainWindow", "1. Shoe Model Structure"))
@@ -272,16 +274,21 @@ class Ui_MainWindow(object):
         self.Q5_2_button.setText(_translate("MainWindow", "5.2 Show Model Structure"))
         self.Q5_3_button.setText(_translate("MainWindow", "5.3 Show Comparison"))
         self.Q5_4_button.setText(_translate("MainWindow", "5.4 Inference"))
-        self.Q1coins.setText(_translate("MainWindow", "There are   coins in the image."))
+        self.Q1coins.setText(
+            _translate("MainWindow", "There are   coins in the image.")
+        )
         self.label_2.setText(_translate("MainWindow", "1. Hough Circle Transform "))
         self.label_3.setText(_translate("MainWindow", "2. Histogram Equalization"))
         self.label_4.setText(_translate("MainWindow", "3. Morphology Operation "))
-        self.label_5.setText(_translate("MainWindow", "4. MNIST Classifier Using VGG19 "))
+        self.label_5.setText(
+            _translate("MainWindow", "4. MNIST Classifier Using VGG19 ")
+        )
         self.label_6.setText(_translate("MainWindow", "5. ResNet50"))
 
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
