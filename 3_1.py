@@ -3,7 +3,8 @@ import numpy as np
 
 # Load the image
 image_path = "closing.png"
-img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+# img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+img = cv2.cvtColor(image_path, cv2.COLOR_BGR2GRAY)
 
 # Step 2: Binarize the grayscale image
 threshold = 127
