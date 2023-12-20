@@ -3,7 +3,6 @@ dataset
 MNIST
 4_bs1000
 vgg19_final.pt
-learning_history.jpg
 resnet50
 __pycache__
 image.jpg
