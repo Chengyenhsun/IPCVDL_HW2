@@ -61,17 +61,6 @@ def load_image5():
 
 def Q1_1():
     image = cv2.imread(filePath)
-    # default_file = "coins.jpg"
-    # filename = argv[0] if len(argv) > 0 else default_file
-    # # Loads an image
-    # src = cv2.imread(cv2.samples.findFile(filename), cv2.IMREAD_COLOR)
-    # # Check if image is loaded fine
-    # if src is None:
-    #     print("Error opening image!")
-    #     print(
-    #         "Usage: hough_circle.py [image_name -- default " + default_file + "] \n"
-    #     )
-    #     return -1
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (5, 5), 0)
 
@@ -316,9 +305,6 @@ def Q4_2():
     scene = QtWidgets.QGraphicsScene()  # 加入圖片
     scene.addPixmap(image)  # 將圖片加入 scene
     ui.Q4_graphicview.setScene(scene)
-    # cv2.imshow("learning_history", image)
-    # cv2.waitKey(0)  # 顯示圖片並等待任意按鍵關閉視窗
-    # cv2.destroyAllWindows()
 
 
 def Q4_3():
@@ -405,14 +391,8 @@ def Q4_3():
         "8",
         "9",
     ]
-    # 輸出結果
-    print(
-        "Predicted class: {} ({})".format(class_names[predicted_class], predicted_class)
-    )
-    print("Class probabilities:")
-    for i, prob in enumerate(probabilities):
-        print("{}: {:.2f}%".format(class_names[i], prob * 100))
-        ui.Q4_predict.setText("predict = " + class_names[i])
+
+    ui.Q4_predict.setText("predict = " + class_names[predicted_class])
 
     probs = [prob.item() for prob in probabilities]
     # 創建一個長條圖
@@ -559,16 +539,6 @@ def Q5_4():
     # Load class names for ImageNet
     # You may need to replace or adapt this depending on the specific classes your model was trained on
     class_names = ["cat", "dog"]  # Replace with your actual class names
-
-    # # Output results
-    # print(
-    #     "Predicted class: {} ({})".format(class_names[predicted_class], predicted_class)
-    # )
-    # print("Class probabilities:")
-    # for i, prob in enumerate(probabilities):
-    #     print("{}: {:.2f}%".format(class_names[i], prob * 100))
-    print("~~~~~~~~~~~~~~~~~~~~~")
-    print("predicted = " + class_names[predicted_class])
     ui.Q5_predict.setText("predict = " + class_names[predicted_class])
 
     probs = [prob.item() for prob in probabilities]
@@ -641,8 +611,6 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
-
-    # ui.Q4_graphicview.setBackgroundBrush(QBrush(QColor(0, 0, 0)))
 
     ui.pushBotton.clicked.connect(load_image)
     ui.Q1_1_button.clicked.connect(Q1_1)
