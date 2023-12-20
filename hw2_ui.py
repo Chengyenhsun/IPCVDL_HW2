@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'hw2.ui'
+# Form implementation generated from reading ui file '.\hw2.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.10
 #
@@ -387,6 +387,12 @@ class Ui_MainWindow(object):
         self.line_25.setFrameShape(QtWidgets.QFrame.HLine)
         self.line_25.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.line_25.setObjectName("line_25")
+        self.Q5_predict = QtWidgets.QLabel(self.centralwidget)
+        self.Q5_predict.setGeometry(QtCore.QRect(430, 640, 60, 16))
+        self.Q5_predict.setObjectName("Q5_predict")
+        self.Q4_predict = QtWidgets.QLabel(self.centralwidget)
+        self.Q4_predict.setGeometry(QtCore.QRect(430, 270, 60, 16))
+        self.Q4_predict.setObjectName("Q4_predict")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1179, 36))
@@ -423,6 +429,8 @@ class Ui_MainWindow(object):
         self.label_4.setText(_translate("MainWindow", "3. Morphology Operation "))
         self.label_5.setText(_translate("MainWindow", "4. MNIST Classifier Using VGG19 "))
         self.label_6.setText(_translate("MainWindow", "5. ResNet50"))
+        self.Q5_predict.setText(_translate("MainWindow", "predict="))
+        self.Q4_predict.setText(_translate("MainWindow", "predict="))
 
 
 if __name__ == "__main__":
