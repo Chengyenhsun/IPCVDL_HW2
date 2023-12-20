@@ -9,9 +9,47 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QPainterPath, QPen
-from PyQt5.QtWidgets import QGraphicsPathItem
-from PyQt5.QtCore import Qt
+
+
+class DrawingScene(QtWidgets.QGraphicsScene):
+    def __init__(self, parent=None):
+        super(DrawingScene, self).__init__(parent)
+        self.pos_xy = []
+
+    def mousePressEvent(self, event):
+        pos_tmp = event.scenePos()
+        self.pos_xy.append(pos_tmp)
+        self.update()
+
+    def mouseMoveEvent(self, event):
+        pos_tmp = event.scenePos()
+        self.pos_xy.append(pos_tmp)
+        self.update()
+
+    def mouseReleaseEvent(self, event):
+        pos_test = QtCore.QPointF(-1, -1)
+        self.pos_xy.append(pos_test)
+        self.update()
+
+    def drawBackground(self, painter, rect):
+        super().drawBackground(painter, rect)
+        pen = QtGui.QPen(QtGui.QColor(255, 255, 255), 2, QtCore.Qt.SolidLine)
+        painter.setPen(pen)
+
+        if len(self.pos_xy) > 1:
+            point_start = self.pos_xy[0]
+            for pos_tmp in self.pos_xy:
+                point_end = pos_tmp
+
+                if point_end == QtCore.QPointF(-1, -1):
+                    point_start = QtCore.QPointF(-1, -1)
+                    continue
+                if point_start == QtCore.QPointF(-1, -1):
+                    point_start = point_end
+                    continue
+
+                painter.drawLine(point_start, point_end)
+                point_start = point_end
 
 
 class Ui_MainWindow(object):
@@ -96,11 +134,7 @@ class Ui_MainWindow(object):
         self.Q5_4_button.setObjectName("Q5_4_button")
         self.verticalLayout_5.addWidget(self.Q5_4_button)
         self.Q4_graphicview = QtWidgets.QGraphicsView(self.centralwidget)
-        # self.verticalLayout_5.addWidget(self.Q4_graphicview)
         self.Q4_graphicview.setGeometry(QtCore.QRect(660, 60, 451, 271))
-        self.Q4_graphicview.setScene(QtWidgets.QGraphicsScene())
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -247,6 +281,10 @@ class Ui_MainWindow(object):
         brush.setStyle(QtCore.Qt.NoBrush)
         self.Q4_graphicview.setForegroundBrush(brush)
         self.Q4_graphicview.setObjectName("Q4_graphicview")
+
+        self.scene = DrawingScene()
+        self.Q4_graphicview.setScene(self.scene)
+
         self.Q1coins = QtWidgets.QLabel(self.centralwidget)
         self.Q1coins.setEnabled(True)
         self.Q1coins.setGeometry(QtCore.QRect(160, 180, 201, 20))
@@ -412,9 +450,6 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def get_Q4_graphicview(self):
-        return self.Q4_graphicview
-
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -449,67 +484,6 @@ class Ui_MainWindow(object):
         self.Q4_predict.setText(_translate("MainWindow", "predict ="))
 
 
-class Example:
-    def __init__(self):
-        super(Example, self).__init__()
-
-        # 使用已經建立好的 Q4_graphicview
-        self.handwriting_view = None
-        self.scene = None
-
-        # 初始化手寫軌跡相關變數
-        self.pos_xy = []
-        self.path_item = QGraphicsPathItem()
-        self.pen = QPen(Qt.white, 2, Qt.SolidLine)
-        self.path_item.setPen(self.pen)
-        self.scene = None
-        self.handwriting_view = None
-
-    def set_ui_reference(self, ui_reference):
-        """
-        设置 Ui_MainWindow 实例的引用
-        """
-        self.handwriting_view = ui_reference.get_Q4_graphicview()
-        self.scene = self.handwriting_view.scene()
-
-        # setMouseTracking 设置为 False，否则不按下鼠标时也会跟踪鼠标事件
-        self.handwriting_view.setMouseTracking(False)
-
-        # 在这里连接鼠标移动和释放事件
-        self.handwriting_view.mouseMoveEvent = self.mouseMoveEvent
-        self.handwriting_view.mouseReleaseEvent = self.mouseReleaseEvent
-
-        # 初始化手寫軌跡相關變數
-        self.pos_xy = []
-        self.path_item = QGraphicsPathItem()
-        self.pen = QPen(Qt.white, 2, Qt.SolidLine)
-        self.path_item.setPen(self.pen)
-        self.scene.addItem(self.path_item)
-
-    def mouseMoveEvent(self, event):
-        """
-        按住鼠标移动事件：将当前点添加到pos_xy列表中
-        更新GraphicsPathItem以显示手写轨迹
-        """
-        pos_tmp = self.handwriting_view.mapToScene(event.pos())
-        self.pos_xy.append(pos_tmp)
-
-        # 更新GraphicsPathItem
-        path = QPainterPath()
-        path.moveTo(self.pos_xy[0])
-        for pos in self.pos_xy[1:]:
-            path.lineTo(pos)
-
-        self.path_item.setPath(path)
-
-    def mouseReleaseEvent(self, event):
-        """
-        重写鼠标按住后松开的事件
-        在每次松开后清空pos_xy列表
-        """
-        self.pos_xy = []
-
-
 if __name__ == "__main__":
     import sys
 
@@ -517,9 +491,5 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
-
-    example = Example()
-    example.set_ui_reference(ui)
-
     MainWindow.show()
     sys.exit(app.exec_())
