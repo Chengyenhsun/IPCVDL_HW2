@@ -13,7 +13,7 @@ from torchsummary import summary
 from torchvision.transforms import transforms, Compose, ToTensor, Normalize, Resize
 from torch.utils.data import Dataset, DataLoader
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtGui import QPixmap, QPainterPath, QColor, QBrush
+from PyQt5.QtGui import QPixmap, QImage, QPainter
 from PyQt5.QtCore import Qt, QPointF
 from PyQt5.QtWidgets import (
     QApplication,
@@ -23,6 +23,61 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 from hw2_ui import Ui_MainWindow
+
+
+class DrawingScene(QtWidgets.QGraphicsScene):
+    def __init__(self, parent=None):
+        super(DrawingScene, self).__init__(parent)
+        self.pos_xy = []
+        self.captured_image = None
+
+    def mousePressEvent(self, event):
+        pos_tmp = event.scenePos()
+        self.pos_xy.append(pos_tmp)
+        self.update()
+
+    def mouseMoveEvent(self, event):
+        pos_tmp = event.scenePos()
+        self.pos_xy.append(pos_tmp)
+        self.update()
+
+    def mouseReleaseEvent(self, event):
+        pos_test = QtCore.QPointF(-1, -1)
+        self.pos_xy.append(pos_test)
+        self.update()
+
+    def drawBackground(self, painter, rect):
+        super().drawBackground(painter, rect)
+        pen = QtGui.QPen(QtGui.QColor(255, 255, 255), 5, QtCore.Qt.SolidLine)
+        painter.setPen(pen)
+
+        if len(self.pos_xy) > 1:
+            point_start = self.pos_xy[0]
+            for pos_tmp in self.pos_xy:
+                point_end = pos_tmp
+
+                if point_end == QtCore.QPointF(-1, -1):
+                    point_start = QtCore.QPointF(-1, -1)
+                    continue
+                if point_start == QtCore.QPointF(-1, -1):
+                    point_start = point_end
+                    continue
+
+                painter.drawLine(point_start, point_end)
+                point_start = point_end
+
+    def capture_view_as_pixmap(self, view):
+        # 取得 QGraphicsView 的畫面
+        pixmap = QPixmap(view.viewport().size())
+
+        # 建立一個 QPainter 來進行渲染
+        painter = QPainter(pixmap)
+        view.render(painter)
+
+        # 不要忘記結束 QPainter 的操作
+        painter.end()
+
+        return pixmap
 
 
 def load_image():
@@ -308,6 +363,21 @@ def Q4_2():
 
 
 def Q4_3():
+    # 擷取畫面
+    captured_pixmap = ui.Q4_graphicview.scene().capture_view_as_pixmap(
+        ui.Q4_graphicview
+    )
+
+    # 將 QPixmap 轉換為 QImage
+    captured_image = QImage(captured_pixmap.toImage())
+
+    # 保存成 PNG 檔案
+    image_path = "captured_image.png"
+    captured_image.save(image_path)
+
+    # 載入擷取的畫面
+    image = Image.open(image_path).convert("L")
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     mean = [0.1307]
     std = [0.3081]
@@ -328,7 +398,7 @@ def Q4_3():
     vgg19.eval()
     # 載入圖片並進行預處理
     transform = Compose([Resize((32, 32)), ToTensor(), Normalize(mean, std)])
-    image = Image.open("1.png").convert("L")
+
     image = transform(image).unsqueeze(0).to(device)  # 添加一個批次維度並移到GPU（如果可用）
     # 使用模型進行推論
     with torch.no_grad():
@@ -372,8 +442,13 @@ def Q4_3():
 
 
 def Q4_4():
-    # 獲取QGraphicsScene
     scene = ui.Q4_graphicview.scene()
+
+    # Clear the drawn lines by clearing the pos_xy attribute
+    scene.pos_xy = []
+
+    # Update the scene to reflect the changes
+    scene.update()
 
     # 清除場景中的所有項目
     scene.clear()
@@ -520,47 +595,6 @@ def Q5_4():
     plt.xticks(rotation=45)  # Make x-axis labels more readable
     plt.tight_layout()
     plt.show()
-
-
-class DrawingScene(QtWidgets.QGraphicsScene):
-    def __init__(self, parent=None):
-        super(DrawingScene, self).__init__(parent)
-        self.pos_xy = []
-
-    def mousePressEvent(self, event):
-        pos_tmp = event.scenePos()
-        self.pos_xy.append(pos_tmp)
-        self.update()
-
-    def mouseMoveEvent(self, event):
-        pos_tmp = event.scenePos()
-        self.pos_xy.append(pos_tmp)
-        self.update()
-
-    def mouseReleaseEvent(self, event):
-        pos_test = QtCore.QPointF(-1, -1)
-        self.pos_xy.append(pos_test)
-        self.update()
-
-    def drawBackground(self, painter, rect):
-        super().drawBackground(painter, rect)
-        pen = QtGui.QPen(QtGui.QColor(255, 255, 255), 5, QtCore.Qt.SolidLine)
-        painter.setPen(pen)
-
-        if len(self.pos_xy) > 1:
-            point_start = self.pos_xy[0]
-            for pos_tmp in self.pos_xy:
-                point_end = pos_tmp
-
-                if point_end == QtCore.QPointF(-1, -1):
-                    point_start = QtCore.QPointF(-1, -1)
-                    continue
-                if point_start == QtCore.QPointF(-1, -1):
-                    point_start = point_end
-                    continue
-
-                painter.drawLine(point_start, point_end)
-                point_start = point_end
 
 
 if __name__ == "__main__":
