@@ -6,3 +6,7 @@ vgg19_final.pt
 resnet50
 __pycache__
 image.jpg
+testcode
+model
+inference_dataset
+train
