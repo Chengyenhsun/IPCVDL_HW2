@@ -362,12 +362,6 @@ def Q4_3():
     #         在每次松开后清空pos_xy列表
     #         """
     #         self.pos_xy = []
-
-    # if __name__ == "__main__":
-    #     app = QApplication(sys.argv)
-    #     pyqt_learn = Example()
-    #     pyqt_learn.show()
-    #     app.exec_()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     mean = [0.1307]
     std = [0.3081]
@@ -418,8 +412,8 @@ def Q4_3():
     print("Class probabilities:")
     for i, prob in enumerate(probabilities):
         print("{}: {:.2f}%".format(class_names[i], prob * 100))
+        ui.Q4_predict.setText("predict = " + class_names[i])
 
-    # ui.predict_label.setText("Predicted = " + class_names[predicted_class])
     probs = [prob.item() for prob in probabilities]
     # 創建一個長條圖
     plt.figure(figsize=(6, 6))
@@ -545,7 +539,7 @@ def Q5_4():
             transforms.RandomHorizontalFlip(),
             transforms.RandomVerticalFlip(),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.Normalize(mean, std),
         ]
     )
 
@@ -566,13 +560,16 @@ def Q5_4():
     # You may need to replace or adapt this depending on the specific classes your model was trained on
     class_names = ["cat", "dog"]  # Replace with your actual class names
 
-    # Output results
-    print(
-        "Predicted class: {} ({})".format(class_names[predicted_class], predicted_class)
-    )
-    print("Class probabilities:")
-    for i, prob in enumerate(probabilities):
-        print("{}: {:.2f}%".format(class_names[i], prob * 100))
+    # # Output results
+    # print(
+    #     "Predicted class: {} ({})".format(class_names[predicted_class], predicted_class)
+    # )
+    # print("Class probabilities:")
+    # for i, prob in enumerate(probabilities):
+    #     print("{}: {:.2f}%".format(class_names[i], prob * 100))
+    print("~~~~~~~~~~~~~~~~~~~~~")
+    print("predicted = " + class_names[predicted_class])
+    ui.Q5_predict.setText("predict = " + class_names[predicted_class])
 
     probs = [prob.item() for prob in probabilities]
 
@@ -637,59 +634,31 @@ def Q5_4():
 #         self.pos_xy = []
 
 
-# if __name__ == "__main__":
-#     app = QApplication(sys.argv)
-#     pyqt_learn = Example()
-#     pyqt_learn.show()
-#     app.exec_()
-
-
-app = QtCore.QCoreApplication.instance()
-if app is None:
-    app = QtWidgets.QApplication(sys.argv)
-MainWindow = QtWidgets.QMainWindow()
-ui = Ui_MainWindow()
-ui.setupUi(MainWindow)
-
-
-class MyMainWindow(QMainWindow):
-    def __init__(self):
-        super(MyMainWindow, self).__init__()
-
-        # 載入UI設計
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
-
-        # 在這裡找到 Q4_graphicview 並設定背景顏色
-        self.ui.Q4_graphicview.setBackgroundBrush(QBrush(QColor(0, 0, 0)))
-
-
 if __name__ == "__main__":
-    app = QApplication([])
+    app = QtCore.QCoreApplication.instance()
+    if app is None:
+        app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
 
-    window = MyMainWindow()
-    window.show()
+    # ui.Q4_graphicview.setBackgroundBrush(QBrush(QColor(0, 0, 0)))
 
-    sys.exit(app.exec_())
+    ui.pushBotton.clicked.connect(load_image)
+    ui.Q1_1_button.clicked.connect(Q1_1)
+    ui.Q1_2_button.clicked.connect(Q1_2)
+    ui.Q2_button.clicked.connect(Q2_1)
+    ui.Q3_1_button.clicked.connect(Q3_1)
+    ui.Q3_2_button.clicked.connect(Q3_2)
+    ui.Q4_1_button.clicked.connect(Q4_1)
+    ui.Q4_2_button.clicked.connect(Q4_2)
+    ui.Q4_3_button.clicked.connect(Q4_3)
+    ui.Q4_4_button.clicked.connect(Q4_4)
+    ui.Q5_load_button.clicked.connect(load_image5)
+    ui.Q5_1_button.clicked.connect(Q5_1)
+    ui.Q5_2_button.clicked.connect(Q5_2)
+    ui.Q5_3_button.clicked.connect(Q5_3)
+    ui.Q5_4_button.clicked.connect(Q5_4)
 
-
-# ui.Q4_graphicview.setBackgroundBrush(QBrush(QColor(0, 0, 0)))
-
-ui.pushBotton.clicked.connect(load_image)
-ui.Q1_1_button.clicked.connect(Q1_1)
-ui.Q1_2_button.clicked.connect(Q1_2)
-ui.Q2_button.clicked.connect(Q2_1)
-ui.Q3_1_button.clicked.connect(Q3_1)
-ui.Q3_2_button.clicked.connect(Q3_2)
-ui.Q4_1_button.clicked.connect(Q4_1)
-ui.Q4_2_button.clicked.connect(Q4_2)
-ui.Q4_3_button.clicked.connect(Q4_3)
-ui.Q4_4_button.clicked.connect(Q4_4)
-ui.Q5_load_button.clicked.connect(load_image5)
-ui.Q5_1_button.clicked.connect(Q5_1)
-ui.Q5_2_button.clicked.connect(Q5_2)
-ui.Q5_3_button.clicked.connect(Q5_3)
-ui.Q5_4_button.clicked.connect(Q5_4)
-
-MainWindow.show()
-app.exec_()
+    MainWindow.show()
+    app.exec_()
