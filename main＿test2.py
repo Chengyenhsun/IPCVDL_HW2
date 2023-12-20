@@ -444,6 +444,8 @@ def Q4_4():
 
     # 清除場景中的所有項目
     scene.clear()
+    scene = DrawingScene()
+    ui.Q4_graphicview.setScene(scene)
 
 
 def Q5_1():
