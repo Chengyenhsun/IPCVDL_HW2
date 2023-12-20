@@ -13,15 +13,7 @@ from torchsummary import summary
 from torchvision.transforms import transforms, Compose, ToTensor, Normalize, Resize
 from torch.utils.data import Dataset, DataLoader
 from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtGui import QPixmap, QImage, QPainter
-from PyQt5.QtCore import Qt, QPointF
-from PyQt5.QtWidgets import (
-    QApplication,
-    QGraphicsView,
-    QGraphicsScene,
-    QGraphicsPathItem,
-    QWidget,
-)
+from PyQt5.QtGui import QPixmap
 from hw2_ui import Ui_MainWindow
 
 
