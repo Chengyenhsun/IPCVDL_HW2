@@ -1055,12 +1055,12 @@
      <rect>
       <x>430</x>
       <y>640</y>
-      <width>60</width>
+      <width>221</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>predict=</string>
+     <string>predict =</string>
     </property>
    </widget>
    <widget class="QLabel" name="Q4_predict">
@@ -1068,12 +1068,12 @@
      <rect>
       <x>430</x>
       <y>270</y>
-      <width>60</width>
+      <width>211</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>predict=</string>
+     <string>predict =</string>
     </property>
    </widget>
   </widget>
