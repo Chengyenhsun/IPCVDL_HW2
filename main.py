@@ -356,7 +356,7 @@ def Q4_3():
 
     # 保存圖片
     image.save("image.jpg")
-    print("Image saved as image.jpg")
+    # print("Image saved as image.jpg")
 
     image_path = "image.jpg"
     # 載入擷取的畫面
@@ -374,7 +374,7 @@ def Q4_3():
     vgg19_bn.features = vgg19_bn.features[:-1]
     # 載入你的訓練好的權重
     vgg19_bn.load_state_dict(
-        torch.load("vgg19_final.pt", map_location=device)
+        torch.load("model/vgg19.pt", map_location=device)
     )  # 請確保路徑正確
     vgg19 = vgg19_bn.to(device)
 
@@ -526,9 +526,7 @@ def Q5_4():
     resnet50 = models.resnet50(pretrained=False, num_classes=2)
     # Load pre-trained weights
     resnet50.load_state_dict(
-        torch.load(
-            "resnet50/with_RE/2resnet50_checkpoint_epoch_20.pt", map_location=device
-        )
+        torch.load("model/resnet50_with_RE_20.pt", map_location=device)
     )  # Make sure the path is correct
     resnet50.to(device)
     resnet50.eval()
