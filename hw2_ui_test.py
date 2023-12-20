@@ -9,6 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QPixmap, QPainter
 
 
 class DrawingScene(QtWidgets.QGraphicsScene):
@@ -50,6 +51,19 @@ class DrawingScene(QtWidgets.QGraphicsScene):
 
                 painter.drawLine(point_start, point_end)
                 point_start = point_end
+
+    def capture_view_as_pixmap(self, view):
+        # 取得 QGraphicsView 的畫面
+        pixmap = QPixmap(view.viewport().size())
+
+        # 建立一個 QPainter 來進行渲染
+        painter = QPainter(pixmap)
+        view.render(painter)
+
+        # 不要忘記結束 QPainter 的操作
+        painter.end()
+
+        return pixmap
 
 
 class Ui_MainWindow(object):
